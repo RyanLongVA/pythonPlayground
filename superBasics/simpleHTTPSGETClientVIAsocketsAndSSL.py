@@ -1,4 +1,25 @@
-import socket, ssl, sys
+import socket, ssl, sys, time
+
+def recv_timeout(the_socket, timeout=2):
+    the_socket.setblocking(0)
+    total_data = []
+    data = ''
+    begin=time.time()
+    while 1:
+        if total_data and time.time()-begin > timeout:
+            break
+        elif time.time()-begin > timeout*2:
+            break
+        try: 
+            data = the_socket.recv(8192)
+            if data: 
+                print data
+                total_data.append(data)
+                begin = time.time()
+            else: 
+                time.sleep(0.1)
+        except:
+            pass
 
 #There's the obvious argparse, which would be overkill for the simple script
 if len(sys.argv) != 3:
@@ -8,14 +29,13 @@ if len(sys.argv) != 3:
 arg_url = sys.argv[1]
 arg_port = int(sys.argv[2])
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# sslContext = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
-# sslContext.options |= ssl.OP_NO_TLSv1 | ssl.OP_NOTLSv1_1
 conn = ssl.wrap_socket(s, ssl_version=ssl.PROTOCOL_TLSv1)
 try: 
     conn.connect((arg_url, arg_port))
-    conn.send("GET / HTTP/1.1\r\nHost: %s\r\n\r\n"%arg_url)
-    print(conn.recv(4096))
+    conn.write("GET / HTTP/1.1\r\nHost: %s\r\n\r\n"%arg_url)
+    recv_timeout(conn)
     conn.close()
-except:
+except Exception,e:
+    print e
     pass
 
