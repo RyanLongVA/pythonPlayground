@@ -38,7 +38,9 @@ def sortASNs(asns):
     return sortedASNs
 
 def callASNsOnBGP(asns):
+    print '\n\nStarting bgp.he.net prefixes... get dnsrecon ready `dnsrecon -r 1.2.3.4./22`\n\n'
     for line in asns.split('\n'):
+        print '\n'
         print line
         cprompt = raw_input('Enter to continue')
         try:
@@ -48,8 +50,9 @@ def callASNsOnBGP(asns):
             exit()
 
 def main():
-    a = sortASNs(start())
-    print a.join('\n')
+    a = '\n'.join(sortASNs(start()))
+    print a
+    callASNsOnBGP(a)
 
 if __name__== "__main__":
     main()
