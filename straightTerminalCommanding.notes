@@ -1,0 +1,4 @@
+##dnsrecon wouldn't save to file, so I piped the full output and parsed
+cat dnsrecon.yahoo.test4 | awk -F $'\t' '{print $2}' | python -c "import sys; a = [','.join(line.split(' ')[1:]) for line in sys.stdin]; print ''.join(filter(None, a));" > dnsrecon.yahoo.test3
+
+
