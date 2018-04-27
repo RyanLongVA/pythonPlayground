@@ -37,22 +37,24 @@ def sortASNs(asns):
             sortedASNs.append(a)
     return sortedASNs
 
-def callASNsOnBGP(asns):
-    print '\n\nStarting bgp.he.net prefixes... get dnsrecon ready `dnsrecon -r 1.2.3.4./22`\n\n'
-    for line in asns.split('\n'):
-        print '\n'
-        print line
-        cprompt = raw_input('Enter to continue')
-        try:
-            call('chromium https://bgp.he.net/%s#_prefixes'%(line.split(' : ')[0]), shell=True)
-        except Exception, e:
-            print e
-            exit()
+def printRanges(asns):
+    ipRange = []
+    for a in asns.splitlines():
+        casn = a.split(' : ')[0]
+        cpage = requests.get('https://ipinfo.io/%s'%(casn)).text
+        soup = BeautifulSoup(cpage, 'lxml')
+        dataContainer = soup.find('tbody', {'class':'t-14'})
+        if dataContainer == None:
+            continue
+        for b in dataContainer:
+            if b == '\n':
+                continue
+            ipRange.append(b.select('a')[0].text.strip())
+    print ' , '.join(ipRange)
 
 def main():
     a = '\n'.join(sortASNs(start()))
-    print a
-    callASNsOnBGP(a)
+    printRanges(a)
 
 if __name__== "__main__":
     main()
